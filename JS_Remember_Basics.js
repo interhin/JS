@@ -415,6 +415,389 @@ rabbit.walk();
 // ||||||||||||||||||||||||||||||||||   Работа с DOM    |||||||||||||||||||||||||||||||||||||
 
 
+// DOM - модель - это внутреннее представление HTML страницы в виде дерева
+
+// Все элементы страницы, включая теги, текст, комментарии, являются узлами DOM.
+
+
+
+document.documentElement // доступ к <html>
+
+document.body // доступ к <body>
+
+
+
+// -------------------------------------Поиск элементов-----------------------------------------
+
+// Только к document
+
+document.getElementById("testid"); // Возвращает элемент с id="testid" (работает немного быстрее querySelector)
+
+
+
+// К document или любой elem
+
+document.getElementsByTagName("div"); // Вернет коллекцию div'ов
+
+document.getElementsByClassName("cName"); // Вернет коллекцию элементов с классом "cName"
+
+document.querySelector(".class1"); // Вернет элемент с классом "class1" (можно написать любой css selector)
+
+document.querySelectorAll(".sameClass"); // Вернет коллекцию элементов с классом "sameClass" (можно написать любой css selector)
+
+elem.matches("css selector"); // true/false удовлетворяет ли элемент указанному css селектору
+
+elem.closest("css selector"); // Идет вверх по дереву от элемента, ищет соответствующий указанному css селектору и возвращает первый
+							  // (ВНИМАНИЕ! Так же проверяет и сам себя)
+
+
+/* 
+
+getElements... Возвращает "живую" коллекцию (если изменится сам документ то значение обновится и в переменной,
+в которую возвратил значение этот метод
+
+с querySelector - наоборот, если документ изменился это никак не повлияет на переменную в которую вернул значение данный метод
+
+*/
+
+
+// --------------------------Свойства и методы элементов--------------------------
+
+
+
+elem.children // Коллекция детей элемента
+
+elem.firstElementChild // Первый ребенок элемента
+elem.lastElementChild  // Последний ребенок элемента
+
+elem.previousElementSubling // Предыдущий элемент от elem
+elem.nextElementSubling // Следующий элемент после elem
+
+elem.parentElement // Элемент родитель
+
+parentElem.contains(childElem); // true/false содержит ли parentElem элемент childElem
+
+elem.tagName // Название тега элемента (в верхнем регистре например: "DIV")
+
+
+
+
+
+
+elem.innerHTML // Задает или возвращает HTML содержимое элемента
+// elem.innerHTML+="some" - сначала удалится старое содержимое затем установится новое, если внутри была картинка
+// или много текста, то они будут грузиться заного (также спадет выделение мышкой с элемента)
+// !!! также если внутри были элементы на которые были ссылки то они станут неверны.
+
+// Хорошая "альтернатива" innerHTML у которой нету таких недостатков:
+elem.insertAdjacentHTML(where,html); // ВСТАВЛЯЕТ (не заменяет а именно вставляет) html
+									 // поэтому проблем как с innerHTML нету
+// where - куда по отношению к элементу вставить html
+	// beforeBegin – перед elem.
+	// afterBegin – внутрь elem, в самое начало.
+	// beforeEnd – внутрь elem, в конец.
+	// afterEnd – после elem.
+
+// Такие же Adjacent методы только для вставки элемента и текста
+elem.insertAdjacentElement(where, newElem);
+elem.insertAdjacentText(where, text);
+
+
+// Современные методы (через запятую можно указывать несколько)
+elem.append(elem1); // Вставляет внутрь в конец
+elem.prepend(elem1); // Вставляет внутрь в начало
+
+elem.after(elem1); // Вставляет elem1 после elem
+elem.before(elem1); // Вставляет elem1 перед elem
+
+elem.replaceWith(elem1); // Вставляет elem1 вместо elem (заменяет)
+
+
+
+
+
+
+elem.outerHTML // Возвращает HTML элемента включая сам элемент (его тег и тд...). Лучше не менять это св-во
+			   // т.к. после изменения переменные продолжат указывать на старый элемент (с innerHTML нет такого)
+			   
+			   
+
+elem.textContent = "some text<div></div>"; // Вставляет текст в elem (даже если мы напишем тег - он вставит его как текст)	   
+			   
+			   
+elem.className = "class1 class2"; // Задает или получает имена классов
+
+elem.remove() // Удалить текущий элемент
+
+elem.classList // Псевдо-массив классов
+
+// Через запятую можно указать несколько
+elem.classList.add("className"); // Добавить класс
+elem.classList.remove("className"); // Удалить класс
+
+elem.classList.toggle("className"); // Переключатель класса (если есть такой класс то удалит, если нет - добавит)
+
+elem.classList.contains("className"); // true/false содержит ли элемент указанный класс
+
+// ------------------------------------------------------------------------------------------------------------------------------
+
+document.body.style.backgroundColor = "red"; // Изменение цвета (css свойство переводится в camelCase (убирается тире))
+
+div.style.cssText="color: red !important; \
+    background-color: yellow; \
+    width: 100px; \
+    text-align: center; \
+    blabla: 5; \
+  ";
+  
+  // При установке style.cssText все предыдущие свойства style удаляются.
+  
+  
+  // Вот так style уже ничего не увидит:
+  
+  <head>
+  <style> body { color: red; margin: 5px } </style> // 
+</head>
+<body>
+
+  Красный текст
+  <script>
+    alert(document.body.style.color); //в большинстве браузеров
+    alert(document.body.style.marginTop); //  ничего не выведет
+  </script>
+</body>
+
+  // Итак, свойство style дает доступ только к той информации, которая хранится в elem.style.
+  
+  // Вот как получить св-ва прописанные в css
+  var computedStyle = getComputedStyle(document.body);
+    alert( computedStyle.marginTop ); // выведет отступ в пикселях
+    alert( computedStyle.color ); // выведет цвет
+	
+	// Для правильного получения значения нужно указать точное свойство. Например: paddingLeft, marginTop, borderLeftWidth.
+
+	// При обращении к сокращенному: padding, margin, border – правильный результат не гарантируется.
+
+// ------------------------------------------------------------------------------------------------------------------------------
+
+document.createElement("div"); // Создает элемент с тегом "div"	
+	
+parentElem.appendChild(elem); // Добавляет в конец parentElem элемент elem
+
+parentElem.insertBefore(elem, nextSibling); // Вставляет elem внутрь parentElem перед элементом nextSibling
+// Например parentElem.insertBefore(elem, parentElem.firstElementChild); вставит элемент в самое начало
+
+var div2 = div.cloneNode(true); // Возвращает полную копию элемента если true (не лезет рекурсивно внутрь если false)
+
+
+// Вставка элемента слева от элемента
+div.parentNode.insertBefore(div2, div.nextSibling); // parentNode, а не parentElement чтобы он учитывал комментарии и текст
+// Вставка элемента справа от элемента 
+div.parentNode.insertBefore(div2, div.previousSibling); // Аналогично только previousSibling
+	
+	
+// Удаление элемента в родителе
+parentElem.removeChild(elem); // Также возвращает удаленный элемент
+
+// Замена элемента в родителе
+parentElem.replaceChild(newElem, elem); // Также возвращает удаленный элемент
+
+
+// Поменять местами элементы !!!!
+document.body.insertBefore(secondElem, firstElem);
+	
+
+// ------------------------- Атрибуты -------------------------	
+
+
+elem.attributes // Возвращает коллекцию атрибутов элемента
+
+elem.hasAttribute("attrName"); // true/false есть ли у элемента атрибут с таким именем
+
+elem.getAttribute("attrName"); // Получает значение атрибута
+
+elem.setAttribute("attrName","value"); // Задает значение атрибуту
+
+elem.removeAttribute("attrName"); // Удаляет атрибут
+
+
+// Имена атрибутов НЕ регистрозависимы.
+
+// Значение атрибутов - всегда строка, а свойств нет. (имеется ввиду св-ва соответствующие названиям атрибутов)
+
+input.checked = true; // Задает или получает значение checkbox
+
+
+
+// ------- Пользовательские атрибуты
+
+elem.dataset.userLocation // Получит значение пользовательского атрибута "data-user-location".
+	// В коде название преобразуется в стиле camelCase и получить к нему доступ можно через dataset.
+
+
+// ---------------Важно------------------
+
+// !! Изменение некоторых свойств обновляет атрибут, но почти всегда связь односторонняя
+//    т.е. атрибут изменяет св-во, но св-во не изменяет атрибут.
+
+// Например
+input.value = "someNew"; // Мы изменили тут св-во
+input.getAttribute("value"); // Но тут оно не изменится, (НО В САМОМ ОКНЕ ПОЛЬЗОВАТЕЛЬ И ФАКТИЧЕСКИ ВСЕ ИЗМЕНИТСЯ)
+
+// Проще говоря input.getAttribute(); ВСЕГДА хранит первоначальное значение атрибута.
+
+// --------------------------------------
+
+
+			
+// ------------------------Таблица----------------------
+
+
+// У каждого тега table внутри есть обертка <tbody> !!!!!!!!!!!
+
+table.rows // Список строк таблицы
+
+tr.cells // Список ячеек строки "tr"
+
+tr.rowIndex // Номер строки в таблице
+
+td.cellIndex // Номер ячейки в строке
+
+// Пример
+table.rows[0].cells[0]
+
+
+
+// ---------------------------------------- Метрика ---------------------------------------------
+
+
+
+elem.offsetWidth // Полная ширина элемента включая border
+elem.offsetHeight // Полная высота элемента включая border
+
+elem.clientLeft // Ширина левого border
+elem.clientTop // Ширина верхнего border (грубо говоря высота)
+
+elem.clientWidth // Ширина блока внутри border, включая padding (НЕ ВКЛЮЧАЕТСЯ ШИРИНА ПОЛОСЫ ПРОКРУТКИ)
+elem.clientHeight // Высота блока внутри border, включая padding (Также не включается ширина верхней полосы прокрутки)
+
+elem.scrollWidth // Правила как у clientWidth, также добавляется ширина скрытого scroll'ом контента
+				 // т.е. будто полная ширина без scroll'a
+elem.scrollHeight // Правила как у clientHeight, также добавляется высота скрытого scroll'ом контента
+				 // т.е. будто полная высота без scroll'a
+				 
+				 
+// Эти свойства можно изменять (elem.scrollTop += 10)
+elem.scrollLeft // Ширина невидимой прокрученной области слева (для горизонтального scroll'a)
+elem.scrollTop // Высота невидимой прокрученной области сверху (для вертикального scroll'a)
+
+
+
+// -----------------------------
+
+document.documentElement.clientWidth // Ширина видимой области окна
+document.documentElement.clientHeight // Высота видимой области окна
+
+document.documentElement.scrollLeft/Top // Размеры прокрученной области (Высота для горизонтального scroll'a)
+										// грубо говоря отступ сверху/слева с помощью scroll'a
+										// Аналогичные св-ва только для чтения pageYOffset, pageXOffset (можно window.pageYOffset)
+										
+window.scrollBy(x,y) // Прокручивает страницу относительно текущих координат
+					 // window.scrollBy(0,10) прокрутит страницу вниз на 10
+					 
+window.scrollTo(pageX,pageY) // Прокручивает страницу к указанным координатам относительно документа
+							 // window.scrollTo(0,0) кнопка вверх
+							 
+							 
+elem.scrollIntoView(top) // Прокручивает документ к элементу elem (если top == true то элемент будет сверху страницы и наоборот)
+
+
+
+// -------------------------------
+
+
+var elCoords = elem.getBoundingClientRect(); // Координаты относительно окна браузера
+	elCoords.top – Y-координата верхней границы элемента,
+	elCoords.left – X-координата левой границы,
+	elCoords.right – X-координата правой границы,
+	elCoords.bottom – Y-координата нижней границы.
+	
+	
+	
+// -------- Пример с координатами (ставит el сверху,снизу и тд... от anc) ---------
+
+
+
+var anc = document.querySelector(".anc");
+var el = document.querySelector(".el");
+
+function positionAt(anchor, position, elem) {
+  var elCoords = elem.getBoundingClientRect();
+  var anCoords = anchor.getBoundingClientRect();
+  
+  elem.style.position = "absolute";
+  
+  switch (position) {
+    case "top":
+        elem.style.top = anCoords.top-elem.clientHeight+"px";
+        elem.style.left = anCoords.left+"px";
+      break;
+    case "left":
+        elem.style.top = anCoords.top+"px";
+        elem.style.left = anCoords.left-elem.clientWidth+"px";
+      break;
+    case "right":
+        elem.style.top = anCoords.top+"px";
+        elem.style.left = anCoords.right+"px";
+      break;
+    case "bot":
+        elem.style.top = anCoords.bottom+"px";
+        elem.style.left = anCoords.left+"px";
+      break;
+  }
+}
+
+positionAt(anc,"bot",el);
+
+
+// ------------------------- Координаты эл-та относительно док-та а не окна (с учетом scroll'a ---------------------------------
+
+function getCoords(elem) { // кроме IE8-
+  var box = elem.getBoundingClientRect();
+
+  return {
+    top: box.top + pageYOffset,
+    left: box.left + pageXOffset
+  };
+
+}
+
+
+// ------------------------------------------------------------------------
+	
+	
+	
+var elem = document.elementFromPoint(x, y);
+
+
+window.screenX,window.screenY // Координаты браузера относительно экрана (редко используется)
+
+// -------------------------------
+
+
+// Высота с учетом scroll'а (эта функция нужна т.к. в хроме и мозиле разные значения для разных св-в)
+
+var scrollHeight = Math.max(
+  document.body.scrollHeight, document.documentElement.scrollHeight,
+  document.body.offsetHeight, document.documentElement.offsetHeight,
+  document.body.clientHeight, document.documentElement.clientHeight
+);
+
+alert( 'Высота с учетом прокрутки: ' + scrollHeight );
+
+
+
+// ----------------------------------------------------------------------------------------------
 
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
