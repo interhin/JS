@@ -915,16 +915,154 @@ onmouseout  // Увод мышки с элемента
 // ||||||||||||||||||||||||||||||||||   AJAX    |||||||||||||||||||||||||||||||||||||
 
 
+var xhr = new XMLHttpRequest();
+
+// Например xhr.open('GET', 'phones.json', true);
+xhr.open(method, URL, async, user, password) // Настройка подключения. method (POST / GET ...) URL - адрес
+
+xhr.send([body]) // Отправить запрос
+
+xhr.status // 200 - ответ получен, !200 - ошибка
+
+xhr.statusText // Текстовое описание статуса от сервера: OK, Not Found, Forbidden и так далее.
+
+xhr.responseText // Текст ответа сервера.
+
+xhr.onreadystatechange // Событие происходит несколько раз в процессе отсылки и получения ответа.
+	xhr.readyState // Получить код состояния запроса
+		//const unsigned short UNSENT = 0; // начальное состояние
+		//const unsigned short OPENED = 1; // вызван open
+		//const unsigned short HEADERS_RECEIVED = 2; // получены заголовки
+		//const unsigned short LOADING = 3; // загружается тело (получен очередной пакет данных)
+		//const unsigned short DONE = 4; // запрос завершён
+		
+		
+xhr.setRequestHeader('Content-Type', 'application/json'); // Установить заголовок запроса
+xhr.getResponseHeader('Content-Type') // Получить значение заголовка
+xhr.getAllResponseHeaders() // Получить все заголовки
+	//Cache-Control: max-age=31536000
+	//Content-Length: 4260
+	//Content-Type: image/png
+	//Date: Sat, 08 Sep 2012 16:53:16 GMT
+	
+	
+// Превышение времени ожидания	
+xhr.timeout = 30000; // 30 секунд (в миллисекундах)
+
+xhr.ontimeout = function() {
+  alert( 'Извините, запрос превысил максимальное время' );
+}
+	// Другие события
+	/*
+	loadstart – запрос начат.
+	progress – браузер получил очередной пакет данных, можно прочитать текущие полученные данные в responseText.
+	abort – запрос был отменён вызовом xhr.abort().
+	error – произошла ошибка.
+	load – запрос был успешно (без ошибок) завершён.
+	timeout – запрос был прекращён по таймауту.
+	loadend – запрос был завершён (успешно или неуспешно)
+	*/
+	
+	
+// ---------------------- GET Запрос (Кодируется только urlencoded) ----------------------
+var xhr = new XMLHttpRequest();
+
+var params = 'name=' + encodeURIComponent(name) +
+  '&surname=' + encodeURIComponent(surname);
+
+xhr.open("GET", '/submit?' + params, true);
+
+xhr.onreadystatechange = ...;
+
+xhr.send();
+
+
+// ---------------------- POST Запрос (Кодировка multipart/form-data) ----------------------
+<form name="person">
+  <input name="name" value="Виктор">
+  <input name="surname" value="Цой">
+</form>
+
+<script>
+  // создать объект для формы
+  var formData = new FormData(document.forms.person);
+
+  // добавить к пересылке ещё пару ключ - значение
+  formData.append("patronym", "Робертович");
+
+  // отослать
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "/url");
+  xhr.send(formData);
+</script>
 
 
 
-// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+// ---------------------- Индикация прогресса закачки информации на сервер ----------------------
+
+xhr.upload.onprogress = function(event) {
+  alert( 'Загружено на сервер ' + event.loaded + ' байт из ' + event.total );
+}
+
+xhr.upload.onload = function() {
+  alert( 'Данные полностью загружены на сервер!' );
+}
+
+xhr.upload.onerror = function() {
+  alert( 'Произошла ошибка при загрузке данных на сервер!' );
+}
+
+// После загрузки данных на сервер , начинается скачивание ответа от сервера, его индикацию можно также получить
+
+xhr.onprogress = function(event) {
+  alert( 'Получено с сервера ' + event.loaded + ' байт из ' + event.total );
+}
 
 
-// ||||||||||||||||||||||||||||||||||   Регулярные выражения    |||||||||||||||||||||||||||||||||||||
 
+// ---------------------- Закачка файла на сервер через форму ----------------------
 
+<form name="upload">
+  <input type="file" name="myfile">
+  <input type="submit" value="Загрузить">
+</form>
 
+<script>
+  document.forms.upload.onsubmit = function() {
+    var input = this.elements.myfile;
+    var file = input.files[0];
+    if (file) {
+      upload(file);
+    }
+    return false;
+  }
+</script>
+
+// ---
+function upload(file) {
+
+  var xhr = new XMLHttpRequest();
+
+  // обработчик для закачки
+  xhr.upload.onprogress = function(event) {
+    log(event.loaded + ' / ' + event.total);
+  }
+
+  // обработчики успеха и ошибки
+  // если status == 200, то это успех, иначе ошибка
+  xhr.onload = xhr.onerror = function() {
+    if (this.status == 200) {
+      log("success");
+    } else {
+      log("error " + this.status);
+    }
+  };
+
+  xhr.open("POST", "upload", true);
+  xhr.send(file);
+
+}
 
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
