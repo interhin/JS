@@ -103,3 +103,27 @@ function avg(summ=0,count=0) {
 }
 
 //console.log(avg());
+
+// Сумма с бесконечным количеством аргументов через вызовы
+const sum = (a) => {
+    return (b)=> {
+        if (!b) return a;
+        return sum(a+b);
+    }
+}
+sum(1)(2) // 3
+sum(1)(2)(3) // 6
+
+// Операция над бесконечной последовательностью аргументов через вызовы (прерывание при пустом аргументе)
+const sum = (a,b) => a+b;
+const mul = (a,b) => a*b;
+const calc = (cb) => {
+    return function reqF(a){
+        return b => {
+            if (!b) return a;
+            return reqF(cb(a,b));
+        }
+    }
+}
+calc(sum)(1)(2)(3)(4)() // 10
+calc(mul)(1)(2)(3)(4)() // 24
