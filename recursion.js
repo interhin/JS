@@ -168,7 +168,7 @@ const root = {
 	},
 };
 
-// Поиск наиболшей суммы в дереве
+// Поиск наибольшей суммы в дереве
 function getMaxTreeSum(root) {
 	if (root === null) return 0;
 	const leftSum = getMaxTreeSum(root.left);
