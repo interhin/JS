@@ -127,3 +127,61 @@ const calc = (cb) => {
 }
 calc(sum)(1)(2)(3)(4)() // 10
 calc(mul)(1)(2)(3)(4)() // 24
+
+
+// Поиск наибольшей ветки в дереве
+const root = {
+	value: 1,
+	left: {
+		value: 2,
+		left: {
+			value: 1,
+			left: {
+				value: 9,
+				left: null,
+				right: null,
+			},
+			right: null,
+		},
+		right: {
+			value: 7,
+			left: null,
+			right: null,
+		},
+	},
+	right: {
+		value: 9,
+		left: {
+			value: 5,
+			left: {
+				value: 7,
+				left: null,
+				right: null,
+			},
+			right: null,
+		},
+		right: {
+			value: 2,
+			left: null,
+			right: null,
+		},
+	},
+};
+
+// Поиск наиболшей суммы в дереве
+function getMaxTreeSum(root) {
+	if (root === null) return 0;
+	const leftSum = getMaxTreeSum(root.left);
+	const rightSum = getMaxTreeSum(root.right);
+	return root.value + Math.max(leftSum, rightSum);
+}
+
+// Поиск наибольшего пути в дереве
+function getMaxTreePath(root) {
+	if (root === null) return '';
+	if (root.left === null && root.right === null) return root.value;
+	const leftTreeSum = getMaxTreeSum(root.left);
+	const rightTreeSum = getMaxTreeSum(root.right);
+	return root.value + ' - ' + getMaxTreePath(leftTreeSum > rightTreeSum ? root.left : root.right);
+}
+
